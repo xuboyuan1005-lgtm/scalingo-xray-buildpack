@@ -1,0 +1,8 @@
+#!/bin/sh
+# Scalingo custom buildpack — release step.
+# The app repo's Procfile also defines the web process; this is the fallback.
+cat <<EOF
+---
+default_process_types:
+  web: ./start.sh
+EOF

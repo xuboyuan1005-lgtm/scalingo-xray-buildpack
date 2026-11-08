@@ -1,0 +1,27 @@
+#!/bin/sh
+# Scalingo custom buildpack — compile step.
+# Downloads the pinned xray release (linux-64) into the app directory.
+# Usage by the platform: bin/compile <build_dir> <cache_dir> <env_dir>
+# No secrets here: UUID / WSPATH come from Scalingo environment variables at runtime.
+set -e
+BUILD_DIR="$1"
+XRAY_VERSION="26.10.31"
+
+echo "-----> Downloading xray ${XRAY_VERSION}"
+cd "$BUILD_DIR"
+curl -fsSL --retry 3 -o xray.zip "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/Xray-linux-64.zip"
+
+if command -v unzip >/dev/null 2>&1; then
+  unzip -o -q xray.zip xray geoip.dat geosite.dat
+else
+  python3 -c "import zipfile; zipfile.ZipFile('xray.zip').extractall()"
+fi
+chmod +x xray
+rm -f xray.zip
+
+if [ ! -x ./xray ]; then
+  echo " !     xray binary missing after unzip" >&2
+  exit 1
+fi
+./xray version || true
+echo "-----> xray ${XRAY_VERSION} installed"

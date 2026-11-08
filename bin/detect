@@ -1,0 +1,5 @@
+#!/bin/sh
+# Scalingo custom buildpack — detect step (Heroku-buildpack compatible).
+# Always matches: this buildpack exists only to install the xray binary.
+echo "xray"
+exit 0
